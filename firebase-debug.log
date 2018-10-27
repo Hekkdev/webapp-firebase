@@ -1,0 +1,25 @@
+[debug] [2018-10-27T19:45:39.212Z] ----------------------------------------------------------------------
+[debug] [2018-10-27T19:45:39.214Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\Hussein\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js serve --only hosting
+[debug] [2018-10-27T19:45:39.214Z] CLI Version:   6.0.0
+[debug] [2018-10-27T19:45:39.214Z] Platform:      win32
+[debug] [2018-10-27T19:45:39.214Z] Node Version:  v8.12.0
+[debug] [2018-10-27T19:45:39.214Z] Time:          Sat Oct 27 2018 22:45:39 GMT+0300 (Middle East Summer Time)
+[debug] [2018-10-27T19:45:39.215Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2018-10-27T19:45:39.222Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2018-10-27T19:45:39.222Z] > authorizing via signed-in user
+[debug] [2018-10-27T19:45:39.222Z] [iam] checking project arabicaiassistant for permissions ["firebase.projects.get"]
+[debug] [2018-10-27T19:45:39.223Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/arabicaiassistant:testIamPermissions  
+
+[debug] [2018-10-27T19:45:40.303Z] <<< HTTP RESPONSE 200
+[debug] [2018-10-27T19:45:40.305Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/arabicaiassistant  
+ 
+[debug] [2018-10-27T19:45:41.293Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Serving from 'C:\Users\Hussein\Documents\Research\FYP- Arabic NLP\friendlychat-web\web'...
+[info] 
+[debug] [2018-10-27T19:45:41.301Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/946816687104/clients/_:getWebAppConfig  
+ 
+[debug] [2018-10-27T19:45:42.265Z] <<< HTTP RESPONSE 200
+[info] i  hosting: Serving hosting files from: ./
+[info] +  hosting: Local server: http://localhost:5000
