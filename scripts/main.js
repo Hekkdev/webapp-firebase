@@ -72,10 +72,6 @@ function addUserMessage(message){
 // Loads chat messages history and listens for upcoming ones.
 function loadMessages() {
   // Loads the last 12 messages and listen for new ones.
-  var callback = function(snap) {
-    var data = snap.val();
-    displayMessage(snap.key, data.name, data.text, data.profilePicUrl, data.imageUrl);
-  };
   var userEmail = firebase.auth().currentUser.email;
   var collection = firebase.firestore().collection('users');
   var document = collection.doc(userEmail);
@@ -92,6 +88,21 @@ function loadMessages() {
 
     });
   });
+
+  var responsesCollection = document.collection('responses').onSnapshot(querySnapshot => {
+    querySnapshot.docChanges().forEach(change => {
+      if (change.type === 'added') {
+        var data = change.doc.data();
+        displayMessage(change.doc.id, data.name, data.text, data.profilePicUrl, data.imageUrl);
+      }
+      if (change.type === 'modified') {
+        var data = change.doc.data();
+        displayMessage(change.doc.id, data.name, data.text, data.profilePicUrl, data.imageUrl);
+      }
+
+    });
+  });
+
 }
 
 // saves new message for user
@@ -106,6 +117,8 @@ function addUserMessage(messageText){
     name: getUserName(),
     text: messageText,
     profilePicUrl: getProfilePicUrl()
+  }).catch(function(error) {
+    console.error('Error writing new message to Firebase Database', error);
   });
 }
 
