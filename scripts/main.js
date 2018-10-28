@@ -1,18 +1,18 @@
 /**
- * Copyright 2015 Google Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright 2015 Google Inc. All Rights Reserved.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 'use strict';
 
 // Signs-in Friendly Chat.
@@ -44,10 +44,30 @@ function getUserName() {
   return firebase.auth().currentUser.displayName;
 }
 
+function getUserEmail() {
+  return firebase.auth().currentUser.email;
+}
+
 // Returns true if a user is signed-in.
 function isUserSignedIn() {
   return !!firebase.auth().currentUser;
 }
+
+
+//add message
+function addUserMessage(message){
+  var collection = firebase.firestore().collection('users');
+  var userEmail = firebase.auth().currentUser.email;
+  var document = collection.doc(userEmail);
+  var newMessage = document.collection('messages').doc();
+  return firebase.firestore().runTransaction(function(transaction) {
+    return transaction.get(document).then(function(doc) {
+      var data = doc.data();
+      return transaction.set(newMessage, message);
+    });
+  });
+}
+
 
 // Loads chat messages history and listens for upcoming ones.
 function loadMessages() {
@@ -56,21 +76,40 @@ function loadMessages() {
     var data = snap.val();
     displayMessage(snap.key, data.name, data.text, data.profilePicUrl, data.imageUrl);
   };
-    firebase.database().ref('/messages/').limitToLast(12).on('child_added', callback);
-    firebase.database().ref('/messages/').limitToLast(12).on('child_changed', callback);
+  var userEmail = firebase.auth().currentUser.email;
+  var collection = firebase.firestore().collection('users');
+  var document = collection.doc(userEmail);
+  var messagesCollection = document.collection('messages').onSnapshot(querySnapshot => {
+    querySnapshot.docChanges().forEach(change => {
+      if (change.type === 'added') {
+        var data = change.doc.data();
+        displayMessage(change.doc.id, data.name, data.text, data.profilePicUrl, data.imageUrl);
+      }
+      if (change.type === 'modified') {
+        var data = change.doc.data();
+        displayMessage(change.doc.id, data.name, data.text, data.profilePicUrl, data.imageUrl);
+      }
+
+    });
+  });
 }
 
-// Saves a new message on the Firebase DB.
-function saveMessage(messageText) {
-  // Add a new message entry to the Firebase database.
-  return firebase.database().ref('/messages/').push({
+// saves new message for user
+//TO DO: add catch error
+function addUserMessage(messageText){
+  var userEmail = firebase.auth().currentUser.email;
+  var collection = firebase.firestore().collection('users');
+  var document = collection.doc(userEmail);
+  var messagesRef = document.collection('messages').doc();
+
+  return messagesRef.set({
     name: getUserName(),
     text: messageText,
     profilePicUrl: getProfilePicUrl()
-  }).catch(function(error) {
-    console.error('Error writing new message to Firebase Database', error);
   });
 }
+
+
 
 // Saves a new message containing an image in Firebase.
 // This first saves the image in Firebase storage.
@@ -105,7 +144,7 @@ function saveMessagingDeviceToken() {
       console.log('Got FCM device token:', currentToken);
       // Saving the Device Token to the datastore.
       firebase.database().ref('/fcmTokens').child(currentToken)
-          .set(firebase.auth().currentUser.uid);
+      .set(firebase.auth().currentUser.uid);
     } else {
       // Need to request permissions to show notifications.
       requestNotificationsPermissions();
@@ -154,7 +193,7 @@ function onMessageFormSubmit(e) {
   e.preventDefault();
   // Check that the user entered a message and is signed in.
   if (messageInputElement.value && checkSignedInWithMessage()) {
-    saveMessage(messageInputElement.value).then(function() {
+    addUserMessage(messageInputElement.value).then(function() {
       // Clear message text field and re-enable the SEND button.
       resetMaterialTextfield(messageInputElement);
       toggleButton();
@@ -194,9 +233,13 @@ function authStateObserver(user) {
     // Show sign-in button.
     signInButtonElement.removeAttribute('hidden');
     // Detach listeners for messages
-    firebase.database().ref('/messages/').off();
-    firebase.database().ref('/messages/').off();
-
+    var userEmail = firebase.auth().currentUser.email;
+    var collection = firebase.firestore().collection('users');
+    var document = collection.doc(userEmail);
+    var unsub= document.collection('messages').onSnapshot(() => {
+    });
+    // Stop listening for changes
+    unsub();
   }
 }
 
@@ -224,11 +267,11 @@ function resetMaterialTextfield(element) {
 
 // Template for messages.
 var MESSAGE_TEMPLATE =
-    '<div class="message-container">' +
-      '<div class="spacing"><div class="pic"></div></div>' +
-      '<div class="message"></div>' +
-      '<div class="name"></div>' +
-    '</div>';
+'<div class="message-container">' +
+'<div class="spacing"><div class="pic"></div></div>' +
+'<div class="message"></div>' +
+'<div class="name"></div>' +
+'</div>';
 
 // A loading image URL.
 var LOADING_IMAGE_URL = 'https://www.google.com/images/spin-32.gif?a';
@@ -282,8 +325,8 @@ function toggleButton() {
 function checkSetup() {
   if (!window.firebase || !(firebase.app instanceof Function) || !firebase.app().options) {
     window.alert('You have not configured and imported the Firebase SDK. ' +
-        'Make sure you go through the codelab setup instructions and make ' +
-        'sure you are running the codelab using `firebase serve`');
+    'Make sure you go through the codelab setup instructions and make ' +
+    'sure you are running the codelab using `firebase serve`');
   }
 }
 
@@ -322,5 +365,3 @@ mediaCaptureElement.addEventListener('change', onMediaFileSelected);
 
 // initialize Firebase
 initFirebaseAuth();
-
-// We load currently existing chat messages and listen to new ones.
