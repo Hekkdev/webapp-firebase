@@ -1,5 +1,6 @@
 {
   "projects": {
-    "arabic ai assistant": "arabicaiassistant"
+    "arabic ai assistant": "arabicaiassistant",
+    "arabicaiassistant": "arabicaiassistant"
   }
 }

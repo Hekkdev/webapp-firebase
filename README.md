@@ -1,7 +1,11 @@
-# Firebase Web Codelab - Final code
+# Arabic AI Assistant
 
-This folder contains the final code of the [Firebase Web Codelab](https://codelabs.developers.google.com/codelabs/firebase-web/).
+to run locally:
 
-You can use this app directly if you'd like to see the finished app but before you do follow the [Create a Firebase Project and Setup](https://codelabs.developers.google.com/codelabs/firebase-web/#3) step of the Codelab instructions
-
-If you'd like to follow the step by step codelab start with the [web-start](../web-start) directory.
+1. clone repo
+2. install npm
+3. install firebase CLI: npm -g install firebase-tools
+4. login to firebase: firebase login
+5. go into directory of project and set up firebase CLI: firebase use --add
+6. to run: firebase serve --only hosting
+7. to deploy to firebase and run on web: firebase deploy 
